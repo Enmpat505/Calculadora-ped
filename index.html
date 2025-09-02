@@ -14,18 +14,41 @@
             <input type="number" id="peso" placeholder="Ej: 15" required>
         </div>
         <div class="input-section">
+            <label for="edad">Edad (años):</label>
+            <input type="number" id="edad" placeholder="Ej: 5" required>
+        </div>
+        <div class="input-section">
             <label for="medicamento">Selecciona el medicamento:</label>
             <select id="medicamento">
                 <option value="">--Selecciona un medicamento--</option>
-                <option value="amoxicilina">Amoxicilina</option>
-                <option value="paracetamol">Paracetamol</option>
-                <option value="ibuprofeno">Ibuprofeno</option>
+                <optgroup label="Analgésicos / Antipiréticos">
+                    <option value="paracetamol">Paracetamol</option>
+                    <option value="ibuprofeno">Ibuprofeno</option>
+                </optgroup>
+                <optgroup label="Antibióticos">
+                    <option value="amoxicilina">Amoxicilina</option>
+                    <option value="amoxicilina-clavulanico">Amoxicilina + Ácido clavulánico</option>
+                    <option value="azitromicina">Azitromicina</option>
+                    <option value="ceftriaxona">Ceftriaxona</option>
+                    <option value="metronidazol">Metronidazol</option>
+                </optgroup>
+                <optgroup label="Respiratorios">
+                    <option value="salbutamol-jarabe">Salbutamol (jarabe)</option>
+                    <option value="salbutamol-inhalador">Salbutamol (inhalador)</option>
+                    <option value="prednisolona">Prednisolona</option>
+                    <option value="dexametasona">Dexametasona</option>
+                </optgroup>
+                <optgroup label="Hidratación Oral (SRO)">
+                    <option value="sro-fase-rehidratacion">Fase de Rehidratación</option>
+                    <option value="sro-fase-mantenimiento-evacuacion">Mantenimiento (por evacuación)</option>
+                    <option value="sro-fase-mantenimiento-vomito">Mantenimiento (por vómito)</option>
+                </optgroup>
             </select>
         </div>
         <div id="presentacion-paracetamol" class="input-section" style="display:none;">
-            <label for="concentracionParacetamol">Selecciona la concentración:</label>
+            <label for="concentracionParacetamol">Concentración de Paracetamol:</label>
             <select id="concentracionParacetamol">
-                <option value="100">Jarabe 100 mg/ml (100mg/ml)</option>
+                <option value="100">Jarabe 100 mg/ml</option>
                 <option value="32">Jarabe 3.2g/100ml (32mg/ml)</option>
             </select>
         </div>
