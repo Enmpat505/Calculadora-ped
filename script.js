@@ -1,27 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     const calcularBtn = document.getElementById('calcularBtn');
     const medicamentoSelect = document.getElementById('medicamento');
-    const edadInput = document.getElementById('edad');
     
     calcularBtn.addEventListener('click', calcularDosis);
     medicamentoSelect.addEventListener('change', () => {
         mostrarOcultarPresentaciones();
-        mostrarOcultarCamposSRO();
     });
-
-    function mostrarOcultarCamposSRO() {
-        const medicamentoSeleccionado = medicamentoSelect.value;
-        const pesoInput = document.getElementById('peso');
-        
-        if (medicamentoSeleccionado.startsWith('sro')) {
-            pesoInput.parentElement.style.display = 'block';
-            edadInput.parentElement.style.display = 'block';
-        } else {
-            pesoInput.parentElement.style.display = 'block';
-            edadInput.parentElement.style.display = 'block';
-        }
-    }
 });
+
+const gotasPorMl = 20; // 20 gotas por ml (ejemplo estándar)
 
 // Objeto que almacena los datos de los medicamentos
 const medicamentos = {
@@ -45,7 +32,11 @@ const medicamentos = {
         tipo: 'farmaco',
         dosis: { min: 5, max: 10 },
         frecuencia: 'cada 6–8 h',
-        presentaciones: [{ nombre: 'Jarabe 100 mg/5 ml', concentracionMgMl: 20 }],
+        presentaciones: [
+            { nombre: 'Jarabe 100 mg/5 ml', concentracionMgMl: 20 },
+            { nombre: 'Jarabe 200 mg/5 ml', concentracionMgMl: 40 },
+            { nombre: 'Jarabe 2 g/100 ml', concentracionMgMl: 20 } // 2 g = 2000 mg / 100 ml = 20 mg/ml
+        ],
         dosisMaxima: {
             porDia: 40 // mg/kg/día
         },
@@ -134,7 +125,7 @@ const medicamentos = {
         indicaciones: 'Inflamación, alergias, edema cerebral.',
         contraindicaciones: 'Infección sistémica activa no tratada.'
     },
-    // Hidratación Oral (SRO)
+    // Hidratación Oral (SRO) - Nota: La edad se pide porque la GPC lo pide.
     'sro-fase-rehidratacion': {
         tipo: 'sro',
         dosis: { min: 50, max: 100 }, // ml/kg
@@ -154,29 +145,51 @@ const medicamentos = {
 
 function mostrarOcultarPresentaciones() {
     const medicamentoSeleccionado = document.getElementById('medicamento').value;
-    const presentacionesDiv = document.getElementById('presentacion-paracetamol');
+    const presentacionParacetamolDiv = document.getElementById('presentacion-paracetamol');
+    const presentacionIbuprofenoDiv = document.getElementById('presentacion-ibuprofeno');
+    const edadInputSection = document.getElementById('edad').parentElement;
+    
+    // Oculta todas las secciones de presentación por defecto
+    presentacionParacetamolDiv.style.display = 'none';
+    presentacionIbuprofenoDiv.style.display = 'none';
 
+    // Muestra la sección de presentación si el medicamento tiene múltiples opciones
     if (medicamentoSeleccionado === 'paracetamol') {
-        presentacionesDiv.style.display = 'block';
+        presentacionParacetamolDiv.style.display = 'block';
+    } else if (medicamentoSeleccionado === 'ibuprofeno') {
+        presentacionIbuprofenoDiv.style.display = 'block';
+    }
+
+    // Oculta la edad a menos que se trate de SRO
+    if (medicamentoSeleccionado.startsWith('sro')) {
+        edadInputSection.style.display = 'block';
     } else {
-        presentacionesDiv.style.display = 'none';
+        edadInputSection.style.display = 'none';
     }
 }
 
 function calcularDosis() {
     const peso = parseFloat(document.getElementById('peso').value);
-    const edad = parseInt(document.getElementById('edad').value, 10);
+    const edadInput = document.getElementById('edad');
     const medicamentoSeleccionado = document.getElementById('medicamento').value;
     const resultadosDiv = document.getElementById('resultados');
 
-    if (isNaN(peso) || isNaN(edad) || medicamentoSeleccionado === "") {
+    const medicamento = medicamentos[medicamentoSeleccionado];
+
+    // Valida solo el peso para la mayoría de los medicamentos
+    if (isNaN(peso) || medicamentoSeleccionado === "") {
         resultadosDiv.innerHTML = '<p class="warning">Por favor, completa todos los campos.</p>';
         return;
     }
-
-    const medicamento = medicamentos[medicamentoSeleccionado];
+    
+    // Si el medicamento es SRO, valida también la edad
+    if (medicamento.tipo === 'sro' && isNaN(parseInt(edadInput.value, 10))) {
+        resultadosDiv.innerHTML = '<p class="warning">Para SRO, por favor, ingresa el peso y la edad.</p>';
+        return;
+    }
 
     if (medicamento.tipo === 'sro') {
+        const edad = parseInt(edadInput.value, 10);
         manejarSRO(medicamento, peso, edad, resultadosDiv);
     } else if (medicamento.tipo === 'informativo') {
         manejarInformativo(medicamento, resultadosDiv);
@@ -189,11 +202,16 @@ function manejarFarmaco(medicamento, peso, resultadosDiv) {
     let presentacionInfo = '';
     let concentracionMgMl;
     
-    // Asignar nombre del medicamento
     const nombreMedicamento = medicamento.nombre || (medicamento.presentaciones && medicamento.presentaciones[0].nombre) || 'Medicamento';
 
     if (medicamento.presentaciones && medicamento.presentaciones.length > 1) {
-        const concentracionSeleccionada = parseFloat(document.getElementById('concentracionParacetamol').value);
+        let concentracionSeleccionada;
+        if (medicamentoSeleccionado === 'paracetamol') {
+            concentracionSeleccionada = parseFloat(document.getElementById('concentracionParacetamol').value);
+        } else if (medicamentoSeleccionado === 'ibuprofeno') {
+            concentracionSeleccionada = parseFloat(document.getElementById('concentracionIbuprofeno').value);
+        }
+
         const presentacionObj = medicamento.presentaciones.find(p => p.concentracionMgMl === concentracionSeleccionada);
         concentracionMgMl = presentacionObj.concentracionMgMl;
         presentacionInfo = presentacionObj.nombre;
@@ -201,11 +219,10 @@ function manejarFarmaco(medicamento, peso, resultadosDiv) {
         concentracionMgMl = medicamento.presentaciones[0].concentracionMgMl;
         presentacionInfo = medicamento.presentaciones[0].nombre;
     } else {
-        concentracionMgMl = null; // No hay concentración para calcular
+        concentracionMgMl = null;
         presentacionInfo = 'No disponible';
     }
 
-    // Cálculo de dosis en mg
     const dosisMinMg = peso * medicamento.dosis.min;
     const dosisMaxMg = peso * medicamento.dosis.max;
 
@@ -216,7 +233,6 @@ function manejarFarmaco(medicamento, peso, resultadosDiv) {
         dosisMgTexto = `${dosisMinMg.toFixed(2)} - ${dosisMaxMg.toFixed(2)} mg`;
     }
 
-    // Cálculo de dosis en ml y gotas (si aplica)
     let dosisMlTexto = 'No aplica';
     let dosisGotasTexto = 'No aplica';
     if (concentracionMgMl) {
@@ -225,18 +241,13 @@ function manejarFarmaco(medicamento, peso, resultadosDiv) {
 
         if (dosisMlMin === dosisMlMax) {
             dosisMlTexto = `${dosisMlMin.toFixed(2)} ml`;
+            dosisGotasTexto = `${(dosisMlMin * gotasPorMl).toFixed(0)} gotas`;
         } else {
             dosisMlTexto = `${dosisMlMin.toFixed(2)} - ${dosisMlMax.toFixed(2)} ml`;
-        }
-
-        if (medicamento.gotasMl) {
-            const dosisGotasMin = dosisMlMin * medicamento.gotasMl;
-            const dosisGotasMax = dosisMlMax * medicamento.gotasMl;
-            dosisGotasTexto = `${dosisGotasMin.toFixed(0)} - ${dosisGotasMax.toFixed(0)} gotas`;
+            dosisGotasTexto = `${(dosisMlMin * gotasPorMl).toFixed(0)} - ${(dosisMlMax * gotasPorMl).toFixed(0)} gotas`;
         }
     }
 
-    // Lógica para dosis máxima diaria
     let dosisDiariaMaxima = 'No aplica';
     let dosisDiariaWarning = false;
     if (medicamento.dosisMaxima) {
@@ -260,6 +271,7 @@ function manejarFarmaco(medicamento, peso, resultadosDiv) {
             <li>**Por peso:** ${medicamento.dosis.min} - ${medicamento.dosis.max} mg/kg/dosis</li>
             <li>**Dosis total:** ${dosisMgTexto} cada ${medicamento.frecuencia}</li>
             <li>**Cantidad en jarabe:** ${dosisMlTexto}</li>
+            <li>**Cantidad en gotas:** ${dosisGotasTexto}</li>
         </ul>
         <hr>
         <h3>Información del medicamento</h3>
@@ -274,11 +286,11 @@ function manejarFarmaco(medicamento, peso, resultadosDiv) {
 function manejarSRO(medicamento, peso, edad, resultadosDiv) {
     let resultadoSRO = '';
     
-    if (medicamento.duracion) { // Fase de rehidratación
+    if (medicamento.duracion) {
         const dosisMinMl = peso * medicamento.dosis.min;
         const dosisMaxMl = peso * medicamento.dosis.max;
         resultadoSRO = `<strong>Fase de Rehidratación (primeras 4 horas):</strong> ${dosisMinMl.toFixed(0)} - ${dosisMaxMl.toFixed(0)} ml de SRO.`;
-    } else if (medicamento.evento) { // Fase de mantenimiento
+    } else if (medicamento.evento) {
         if (edad < 2) {
             resultadoSRO = `<strong>Regla práctica (Menor de 2 años):</strong> Administrar 50 - 100 ml de SRO después de cada evacuación.`;
         } else if (edad >= 2 && edad <= 10) {
