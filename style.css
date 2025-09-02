@@ -1,0 +1,80 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.input-section {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.input-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.input-section input, .input-section select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.resultados-section {
+    text-align: left;
+    margin-top: 20px;
+    border-top: 2px solid #eee;
+    padding-top: 20px;
+}
+
+.resultados-section h2 {
+    color: #007bff;
+}
+
+.resultados-section p {
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+.warning {
+    color: #dc3545;
+    font-weight: bold;
+}

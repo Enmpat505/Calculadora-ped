@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Dosis Pediátricas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Dosis Pediátricas</h1>
+        <div class="input-section">
+            <label for="peso">Peso (kg):</label>
+            <input type="number" id="peso" placeholder="Ej: 15" required>
+        </div>
+        <div class="input-section">
+            <label for="medicamento">Selecciona el medicamento:</label>
+            <select id="medicamento">
+                <option value="">--Selecciona un medicamento--</option>
+                <option value="amoxicilina">Amoxicilina</option>
+                <option value="paracetamol">Paracetamol</option>
+                <option value="ibuprofeno">Ibuprofeno</option>
+            </select>
+        </div>
+        <div id="presentacion-paracetamol" class="input-section" style="display:none;">
+            <label for="concentracionParacetamol">Selecciona la concentración:</label>
+            <select id="concentracionParacetamol">
+                <option value="100">Jarabe 100 mg/ml (100mg/ml)</option>
+                <option value="32">Jarabe 3.2g/100ml (32mg/ml)</option>
+            </select>
+        </div>
+        <button id="calcularBtn">Calcular Dosis</button>
+        <div id="resultados" class="resultados-section">
+            </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
